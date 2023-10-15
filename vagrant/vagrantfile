@@ -1,0 +1,35 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+VAGRANTFILE_API_VERSION = "2"
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+    # set name of the VM
+    config.vm.define "SportStore"
+    config.vm.box = "bento/ubuntu-22.04"
+    config.vm.network "forwarded_port", guest: 80, host: 8080
+    config.vm.network "forwarded_port", guest: 5000, host: 5000
+    config.vm.network "forwarded_port", guest: 5001, host: 5001
+    config.vm.network :private_network, ip: "192.168.200.10"
+
+    config.vm.provider "virtualbox" do |vb|
+        vb.memory = "2048"
+        vb.cpus = "2"
+        end
+    # run the provision script
+
+    config.vm.provision "docker" do |d|
+        d.pull_images "mcr.microsoft.com/mssql/server:2019-latest"
+    end
+
+
+
+    # copy the folder sr and tests to the VM
+    config.vm.provision "file", source: "src", destination: "/home/vagrant/src"
+    config.vm.provision "file", source: "tests", destination: "/home/vagrant/tests"
+    # copy file SportStore.sln to the VM
+    config.vm.provision "file", source: "SportStore.sln", destination: "/home/vagrant/SportStore.sln"
+
+    # run the provision scrip
+    config.vm.provision "shell", path: "provision.sh"
+end
