@@ -1,6 +1,5 @@
 #!/usr/bin/bash
 
-
 # install dotnet 6.0
 
 sudo apt update && sudo apt -y install dotnet6
@@ -13,7 +12,18 @@ docker run -e "ACCEPT_EULA=Y" -e "MSSQL_SA_PASSWORD=Development1" -e "MSSQL_PID=
 sleep 10
 
 # restore project (dev build)
-dotnet restore src/Server/Server.csproj
+sudo dotnet restore /vagrant/src/Server/Server.csproj
 
-# run project (dev build)
-dotnet run watch --project src/Server/Server.csproj
+# restore tests (dev build)
+sudo dotnet restore /vagrant/tests/Domain.Tests/Domain.Tests.csproj
+
+# run tests (dev build)
+sudo dotnet test /vagrant/tests/Domain.Tests/Domain.Tests.csproj
+
+# run project (dev build) run it in background
+sudo dotnet run --project /vagrant/src/Server/Server.csproj &
+
+
+
+
+

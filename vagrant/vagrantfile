@@ -21,15 +21,15 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     config.vm.provision "docker" do |d|
         d.pull_images "mcr.microsoft.com/mssql/server:2019-latest"
     end
-
-
-
-    # copy the folder sr and tests to the VM
-    config.vm.provision "file", source: "src", destination: "/home/vagrant/src"
-    config.vm.provision "file", source: "tests", destination: "/home/vagrant/tests"
-    # copy file SportStore.sln to the VM
-    config.vm.provision "file", source: "SportStore.sln", destination: "/home/vagrant/SportStore.sln"
+    # create alias for # create alias that run the tests and run the server and also one which kills the server process, these alias are usable by every user
+    config.vm.provision "shell", inline: <<-SHELL
+        echo "alias runtests='sudo dotnet test /vagrant/tests/Domain.Tests/Domain.Tests.csproj'" >> /home/vagrant/.bashrc
+        echo "alias runserver='sudo dotnet run --project /vagrant/src/Server/Server.csproj &'" >> /home/vagrant/.bashrc
+        echo "alias dotEnd='sudo fuser -k 5001/tcp && sudo fuser -k 5000/tcp'" >> /home/vagrant/.bashrc
+    SHELL
 
     # run the provision scrip
     config.vm.provision "shell", path: "provision.sh"
+    # tell user that runtests, runserver and dotEnd alias are available to be used
+    config.vm.post_up_message = "runtests, runserver and dotEnd alias are available to be used"
 end
